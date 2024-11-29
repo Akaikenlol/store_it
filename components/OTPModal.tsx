@@ -1,33 +1,34 @@
 "use client";
 
-import React, { useState } from "react";
 import {
 	AlertDialog,
 	AlertDialogAction,
-	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
 import {
 	InputOTP,
 	InputOTPGroup,
-	InputOTPSeparator,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
+import React, { useState } from "react";
 import Image from "next/image";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
+import { verifySecret, sendEmailOTP } from "@/lib/actions/user.actions";
+import { useRouter } from "next/navigation";
 
-const OTPModal = ({
-	email,
+const OtpModal = ({
 	accountId,
+	email,
 }: {
-	email: string;
 	accountId: string;
+	email: string;
 }) => {
+	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(true);
 	const [password, setPassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -36,8 +37,14 @@ const OTPModal = ({
 		e.preventDefault();
 		setIsLoading(true);
 
+		console.log({ accountId, password });
+
 		try {
-			// CALL API TO VERIFY ACCOUNT
+			const sessionId = await verifySecret({ accountId, password });
+
+			console.log({ sessionId });
+
+			if (sessionId) router.push("/");
 		} catch (error) {
 			console.log("Failed to verify OTP", error);
 		}
@@ -46,20 +53,21 @@ const OTPModal = ({
 	};
 
 	const handleResendOtp = async () => {
-		// Call API to resend OTP
+		await sendEmailOTP({ email });
 	};
+
 	return (
 		<AlertDialog open={isOpen} onOpenChange={setIsOpen}>
 			<AlertDialogContent className="shad-alert-dialog">
-				<AlertDialogHeader className="flex relative justify-center">
+				<AlertDialogHeader className="relative flex justify-center">
 					<AlertDialogTitle className="h2 text-center">
 						Enter Your OTP
 						<Image
-							src={"/assets/icons/close-dark.svg"}
+							src="/assets/icons/close-dark.svg"
+							alt="close"
 							width={20}
 							height={20}
 							onClick={() => setIsOpen(false)}
-							alt="close"
 							className="otp-close-button"
 						/>
 					</AlertDialogTitle>
@@ -68,6 +76,7 @@ const OTPModal = ({
 						<span className="pl-1 text-brand">{email}</span>
 					</AlertDialogDescription>
 				</AlertDialogHeader>
+
 				<InputOTP maxLength={6} value={password} onChange={setPassword}>
 					<InputOTPGroup className="shad-otp">
 						<InputOTPSlot index={0} className="shad-otp-slot" />
@@ -83,7 +92,7 @@ const OTPModal = ({
 					<div className="flex w-full flex-col gap-4">
 						<AlertDialogAction
 							onClick={handleSubmit}
-							className="shad-submit-btn h-12 text-white"
+							className="shad-submit-btn h-12"
 							type="button"
 						>
 							Submit
@@ -116,4 +125,4 @@ const OTPModal = ({
 	);
 };
 
-export default OTPModal;
+export default OtpModal;
