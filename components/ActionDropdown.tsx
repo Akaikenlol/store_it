@@ -27,6 +27,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
 import { renameFile } from "@/lib/actions/file.actions";
+import { FileDetails } from "./ActionModalContent";
 
 const ActionDropdown = ({
 	file,
@@ -87,7 +88,7 @@ const ActionDropdown = ({
 							onChange={(e) => setName(e.target.value)}
 						/>
 					)}
-					{/* {value === "details" && <FileDetails file={file} />} */}
+					{value === "details" && <FileDetails file={file} />}
 					{/* {value === "share" && (
 				<ShareInput
 				  file={file}
